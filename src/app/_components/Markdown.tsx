@@ -1,14 +1,25 @@
-import { MDXRemote } from 'next-mdx-remote/rsc';
-import { FileInfo } from '../types';
+'use client';
+
+import { useEffect, useState } from 'react';
+import markdownHtml from 'zenn-markdown-html';
 import 'zenn-content-css';
 import Link from 'next/link';
 import { Card } from './Card';
+import { FileInfo } from '../types';
 
-export const Markdown = async () => {
-  const res = await fetch(`${process.env.SITE_URL}/api/md-from-github`, {
-    cache: 'no-store',
-  });
-  const source: FileInfo[] = await res.json();
+export const Markdown = () => {
+  const [source, setSource] = useState<FileInfo[] | undefined>(undefined);
+  useEffect(() => {
+    const fetchSource = async () => {
+      const res = await fetch('/api/md-from-github');
+      setSource((await res.json()) as FileInfo[]);
+    };
+    fetchSource();
+  }, []);
+
+  if (!source) {
+    return <h1>Loading...</h1>;
+  }
 
   return (
     <div className='[overflow-wrap:anywhere]'>
@@ -30,12 +41,15 @@ export const Markdown = async () => {
       </Card>
       {/* content */}
       <div className='flex flex-col gap-4'>
-        {source.map((file, idx) => (
-          <Card key={idx} className='znc'>
-            <h1 id={file.path}>{file.path}</h1>
-            <MDXRemote source={file.content} />
-          </Card>
-        ))}
+        {source.map((file, idx) => {
+          const html = markdownHtml(file.content);
+          return (
+            <Card key={idx} className='znc'>
+              <h1 id={file.path}>{file.path}</h1>
+              <div dangerouslySetInnerHTML={{ __html: html }} />
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
