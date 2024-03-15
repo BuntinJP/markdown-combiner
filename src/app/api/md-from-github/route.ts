@@ -5,9 +5,7 @@ import { FileInfo } from '@/app/types';
 export const runtime = 'edge';
 
 export const GET = async () => {
-  const client = new Octokit({
-    auth: process.env.GITHUB_TOKEN,
-  });
+  const client = new Octokit();
 
   const getFileContent = async (path: string): Promise<string | undefined> => {
     const response = await client.repos.getContent({
