@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import { FileInfo } from '@/app/types';
 
+export const runtime = 'edge';
+
 export const GET = async () => {
   const client = new Octokit({
     auth: process.env.GITHUB_TOKEN,
