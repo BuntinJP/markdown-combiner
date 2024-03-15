@@ -25,7 +25,7 @@ export const Markdown = () => {
     <div className='[overflow-wrap:anywhere]'>
       {/* toc */}
       <Card className='flex flex-col gap-1 mx-2 sm:mx-0 my-4 rounded-lg shadow-sm'>
-        <h2 className='my-2 sm:my-2'>Table of content</h2>
+        <h2 className='my-2 sm:my-2'>Table of contents</h2>
         <ul className='m-0'>
           {source.map((file, idx) => (
             <li key={idx}>
