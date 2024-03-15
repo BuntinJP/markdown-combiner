@@ -2,7 +2,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { FileInfo } from '../types';
 
 export const Markdown = async () => {
-  const res = await fetch(`${process.env.URL}/api/md-from-github`, {
+  const res = await fetch(`${process.env.SITE_URL}/api/md-from-github`, {
     cache: 'no-store',
   });
   const source: FileInfo[] = await res.json();
