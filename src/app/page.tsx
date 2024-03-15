@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main>
       <h1 className='text-center text-5xl font-bold my-4'>Image Data</h1>
-      <div className='mx-2 lg:mx-auto lg:w-[992px]'>
+      <div className='mx-2 lg:mx-auto lg:w-[992px] my-4'>
         <Suspense fallback={<h1 className='text-center'>Loading...</h1>}>
           <Markdown />
         </Suspense>
