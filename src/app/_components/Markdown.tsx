@@ -6,7 +6,6 @@ export const Markdown = async () => {
     cache: 'no-store',
   });
   const source: FileInfo[] = await res.json();
-  console.log(source);
 
   return (
     <div>
