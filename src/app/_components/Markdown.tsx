@@ -18,13 +18,13 @@ export const Markdown = () => {
   }, []);
 
   if (!source) {
-    return <h1>Loading...</h1>;
+    return <h1 className='text-center'>Loading...</h1>;
   }
 
   return (
     <div className='[overflow-wrap:anywhere]'>
       {/* toc */}
-      <Card className='flex flex-col gap-1 my-4'>
+      <Card className='flex flex-col gap-1 mx-2 sm:mx-0 my-4 rounded-lg shadow-sm'>
         <h2 className='my-2 sm:my-2'>Table of content</h2>
         <ul className='m-0'>
           {source.map((file, idx) => (

@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main>
       <h1 className='text-center text-5xl font-bold my-4'>Image Data</h1>
-      <div className='mx-2 lg:mx-auto lg:w-[992px] my-4'>
+      <div className='mx-0 my-0 sm:my-4 lg:mx-auto lg:w-[992px]'>
         <Markdown />
       </div>
     </main>
