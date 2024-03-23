@@ -93,6 +93,7 @@ export const getHTMLFiles = async () => {
         return {
           path: file.path.replace((process.env.NEXT_PUBLIC_GITHUB_HTML_PATH as string) + '/', ''),
           content: file.content,
+          url: 'https://github.com/BuntinJP/xlog-images/blob/main/' + file.path,
         };
       },
     );

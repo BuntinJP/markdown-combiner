@@ -56,6 +56,7 @@ export const ImageSamples = () => {
             return (
               <Card key={idx} className='znc'>
                 <div dangerouslySetInnerHTML={{ __html: file.content }} />
+                <a href={file.url ?? 'https://www.xlog.systems'}>{file.path}</a>
               </Card>
             );
           })}
