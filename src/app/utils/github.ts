@@ -1,16 +1,13 @@
-import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
-import { FileInfo } from '@/app/types';
+import { FileInfo } from '../types';
 
-export const runtime = 'edge';
-
-export const GET = async () => {
+export const getFiles = async () => {
   const client = new Octokit();
 
   const getFileContent = async (path: string): Promise<string | undefined> => {
     const response = await client.repos.getContent({
-      owner: process.env.GITHUB_OWNER as string,
-      repo: process.env.GITHUB_REPO as string,
+      owner: process.env.NEXT_PUBLIC_GITHUB_OWNER as string,
+      repo: process.env.NEXT_PUBLIC_GITHUB_REPO as string,
       path,
     });
     const entry = response.data;
@@ -34,8 +31,8 @@ export const GET = async () => {
   const getFiles = async (path: string) => {
     const files: FileInfo[] = [];
     const response = await client.rest.repos.getContent({
-      owner: process.env.GITHUB_OWNER as string,
-      repo: process.env.GITHUB_REPO as string,
+      owner: process.env.NEXT_PUBLIC_GITHUB_OWNER as string,
+      repo: process.env.NEXT_PUBLIC_GITHUB_REPO as string,
       path,
     });
     const entries = response.data;
@@ -53,14 +50,14 @@ export const GET = async () => {
   };
 
   try {
-    const files = (await getFiles(process.env.GITHUB_PATH as string)).map((file) => {
+    const files = (await getFiles(process.env.NEXT_PUBLIC_GITHUB_PATH as string)).map((file) => {
       return {
-        path: file.path.replace((process.env.GITHUB_PATH as string) + '/', ''),
+        path: file.path.replace((process.env.NEXT_PUBLIC_GITHUB_PATH as string) + '/', ''),
         content: file.content,
       };
     });
-    return NextResponse.json(files);
+    return files;
   } catch (error) {
-    return NextResponse.error();
+    return [];
   }
 };

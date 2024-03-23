@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import markdownHtml from 'zenn-markdown-html';
 import 'zenn-content-css';
 import Link from 'next/link';
+import { getFiles } from '../utils/github';
 import { Card } from './Card';
 import { FileInfo } from '../types';
 
@@ -12,8 +13,10 @@ export const Markdown = () => {
   useEffect(() => {
     const fetchSource = async () => {
       try {
-        const res = await fetch('/api/md-from-github', { cache: 'no-store' });
-        setSource((await res.json()) as FileInfo[]);
+        const files = await getFiles();
+        console.log(files);
+
+        setSource(files);
       } catch (e: any) {
         setSource([{ path: 'Error', content: e.message }]);
         console.error(e);
