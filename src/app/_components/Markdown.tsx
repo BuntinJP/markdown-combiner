@@ -4,18 +4,21 @@ import { useEffect, useState } from 'react';
 import markdownHtml from 'zenn-markdown-html';
 import 'zenn-content-css';
 import Link from 'next/link';
-import { getFiles } from '../utils/github';
+import { getMarkdownFiles } from '../utils/github';
 import { Card } from './Card';
 import { FileInfo } from '../types';
+import { Loading } from './Loading';
 
 export const Markdown = () => {
   const [source, setSource] = useState<FileInfo[] | undefined>(undefined);
   useEffect(() => {
     const fetchSource = async () => {
       try {
-        const files = await getFiles();
+        const files = await getMarkdownFiles();
+        if (files.length === 0) {
+          throw new Error('No markdown files found');
+        }
         console.log(files);
-
         setSource(files);
       } catch (e: any) {
         setSource([{ path: 'Error', content: e.message }]);
@@ -26,7 +29,11 @@ export const Markdown = () => {
   }, []);
 
   if (!source) {
-    return <h1 className='text-center'>Loading...</h1>;
+    return (
+      <div className='flex item-center justify-center mt-20'>
+        <Loading />
+      </div>
+    );
   }
 
   return (
