@@ -12,7 +12,7 @@ export const Markdown = () => {
   useEffect(() => {
     const fetchSource = async () => {
       try {
-        const res = await fetch('/api/md-from-github');
+        const res = await fetch('/api/md-from-github', { cache: 'no-store' });
         setSource((await res.json()) as FileInfo[]);
       } catch (e: any) {
         setSource([{ path: 'Error', content: e.message }]);
