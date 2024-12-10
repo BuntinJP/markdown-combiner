@@ -1,48 +1,54 @@
-import { Octokit } from '@octokit/rest';
-import { FileInfo } from '../types';
+// src/app/utils/github.ts
 
-const client = new Octokit();
+import { Octokit } from '@octokit/rest';
+import type { FileInfo } from '../types';
+
+const client = new Octokit({
+  auth: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
+});
 
 const getFileContent = async (path: string): Promise<string | undefined> => {
-  const response = await client.repos.getContent({
-    owner: process.env.NEXT_PUBLIC_GITHUB_OWNER as string,
-    repo: process.env.NEXT_PUBLIC_GITHUB_REPO as string,
+  const response = await client.rest.repos.getContent({
+    owner: process.env.NEXT_PUBLIC_GITHUB_OWNER ?? '',
+    repo: process.env.NEXT_PUBLIC_GITHUB_REPO ?? '',
     path,
   });
   const entry = response.data;
 
   if (Array.isArray(entry)) {
     const buffers = entry.map((c) => {
-      if (c.content) {
+      if ('content' in c && c.content) {
         return Buffer.from(c.content, 'base64');
-      } else {
-        return Buffer.alloc(0);
       }
+      return Buffer.alloc(0);
     });
     return Buffer.concat(buffers).toString();
-  } else if (typeof entry === 'object' && 'content' in entry && entry.content) {
+  }
+  if ('content' in entry && entry.content) {
     return Buffer.from(entry.content, 'base64').toString();
   }
 
   return undefined;
 };
 
-export const getMarkdownFiles = async () => {
-  const getRemoteFiles = async (path: string) => {
+// 指定拡張子のファイルを再帰的に取得
+const fetchFilesFromGitHub = async (basePath: string, extension: string): Promise<FileInfo[]> => {
+  const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER as string;
+  const repo = process.env.NEXT_PUBLIC_GITHUB_REPO as string;
+
+  const getRemoteFiles = async (path: string): Promise<FileInfo[]> => {
     const files: FileInfo[] = [];
-    const response = await client.rest.repos.getContent({
-      owner: process.env.NEXT_PUBLIC_GITHUB_OWNER as string,
-      repo: process.env.NEXT_PUBLIC_GITHUB_REPO as string,
-      path,
-    });
-    console.log('response');
-    console.log(response);
+    const response = await client.rest.repos.getContent({ owner, repo, path });
     const entries = response.data;
+
     if (Array.isArray(entries)) {
       for (const entry of entries) {
-        if (entry.type === 'file' && entry.name.endsWith('.md')) {
-          if (entry.name === 'template.md') continue;
-          files.push({ path: entry.path, content: (await getFileContent(entry.path)) ?? '' });
+        if (entry.type === 'file' && entry.name.endsWith(extension)) {
+          if (extension === '.md' && entry.name === 'template.md') continue;
+          files.push({
+            path: entry.path,
+            content: (await getFileContent(entry.path)) ?? '',
+          });
         } else if (entry.type === 'dir') {
           files.push(...(await getRemoteFiles(`${path}/${entry.name}`)));
         }
@@ -51,53 +57,33 @@ export const getMarkdownFiles = async () => {
     return files;
   };
 
+  const allFiles = await getRemoteFiles(basePath);
+  // ベースパスを除去
+  return allFiles.map((file) => ({
+    path: file.path.replace(`${basePath}/`, ''),
+    content: file.content,
+  }));
+};
+
+// Markdownファイル取得
+export const getMarkdownFiles = async (): Promise<FileInfo[]> => {
   try {
-    const files = (await getRemoteFiles(process.env.NEXT_PUBLIC_GITHUB_DOCS_PATH as string)).map(
-      (file) => {
-        return {
-          path: file.path.replace((process.env.NEXT_PUBLIC_GITHUB_DOCS_PATH as string) + '/', ''),
-          content: file.content,
-        };
-      },
-    );
-    return files;
+    const basePath = process.env.NEXT_PUBLIC_GITHUB_DOCS_PATH as string;
+    return await fetchFilesFromGitHub(basePath, '.md');
   } catch (error) {
     return [];
   }
 };
 
-export const getHTMLFiles = async () => {
-  const getRemoteFiles = async (path: string) => {
-    const files: FileInfo[] = [];
-    const response = await client.rest.repos.getContent({
-      owner: process.env.NEXT_PUBLIC_GITHUB_OWNER as string,
-      repo: process.env.NEXT_PUBLIC_GITHUB_REPO as string,
-      path,
-    });
-    const entries = response.data;
-    if (Array.isArray(entries)) {
-      for (const entry of entries) {
-        if (entry.type === 'file' && entry.name.endsWith('.html')) {
-          files.push({ path: entry.path, content: (await getFileContent(entry.path)) ?? '' });
-        } else if (entry.type === 'dir') {
-          files.push(...(await getRemoteFiles(`${path}/${entry.name}`)));
-        }
-      }
-    }
-    return files;
-  };
-
+// HTMLファイル取得
+export const getHTMLFiles = async (): Promise<(FileInfo & { url: string })[]> => {
   try {
-    const files = (await getRemoteFiles(process.env.NEXT_PUBLIC_GITHUB_HTML_PATH as string)).map(
-      (file) => {
-        return {
-          path: file.path.replace((process.env.NEXT_PUBLIC_GITHUB_HTML_PATH as string) + '/', ''),
-          content: file.content,
-          url: 'https://github.com/BuntinJP/xlog-images/blob/main/' + file.path,
-        };
-      },
-    );
-    return files;
+    const basePath = process.env.NEXT_PUBLIC_GITHUB_HTML_PATH as string;
+    const files = await fetchFilesFromGitHub(basePath, '.html');
+    return files.map((file) => ({
+      ...file,
+      url: `https://github.com/BuntinJP/xlog-images/blob/main/${basePath}/${file.path}`,
+    }));
   } catch (error) {
     return [];
   }

@@ -6,7 +6,7 @@ import 'zenn-content-css';
 import Link from 'next/link';
 import { getMarkdownFiles } from '../utils/github';
 import { Card } from './Card';
-import { FileInfo } from '../types';
+import type { FileInfo } from '../types';
 import { Loading } from './Loading';
 
 export const Markdown = () => {

@@ -4,7 +4,7 @@ import { getHTMLFiles } from '../utils/github';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-import { FileInfo } from '../types';
+import type { FileInfo } from '../types';
 
 import { Card } from './Card';
 import { Loading } from './Loading';
@@ -55,6 +55,7 @@ export const ImageSamples = () => {
           {source.map((file, idx) => {
             return (
               <Card key={idx} className='znc'>
+                {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
                 <div dangerouslySetInnerHTML={{ __html: file.content }} />
                 <a href={file.url ?? 'https://www.xlog.systems'}>{file.path}</a>
               </Card>
