@@ -1,7 +1,7 @@
 // src/app/utils/github.ts
 
 import { Octokit } from '@octokit/rest';
-import type { FileInfo } from '../types';
+import type { CloudImageInfoWithCalculatedUrl } from '../types';
 
 const client = new Octokit({
   auth: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
@@ -31,24 +31,25 @@ const getFileContent = async (path: string): Promise<string | undefined> => {
   return undefined;
 };
 
-// 指定拡張子のファイルを再帰的に取得
-const fetchFilesFromGitHub = async (basePath: string, extension: string): Promise<FileInfo[]> => {
+const fetchFilesFromGitHub = async (basePath: string, extension: string): Promise<CloudImageInfoWithCalculatedUrl[]> => {
   const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER as string;
   const repo = process.env.NEXT_PUBLIC_GITHUB_REPO as string;
 
-  const getRemoteFiles = async (path: string): Promise<FileInfo[]> => {
-    const files: FileInfo[] = [];
+  const getRemoteFiles = async (path: string): Promise<CloudImageInfoWithCalculatedUrl[]> => {
+    const files: CloudImageInfoWithCalculatedUrl[] = [];
     const response = await client.rest.repos.getContent({ owner, repo, path });
     const entries = response.data;
 
     if (Array.isArray(entries)) {
       for (const entry of entries) {
         if (entry.type === 'file' && entry.name.endsWith(extension)) {
-          if (extension === '.md' && entry.name === 'template.md') continue;
-          files.push({
-            path: entry.path,
-            content: (await getFileContent(entry.path)) ?? '',
-          });
+          const content = (await getFileContent(entry.path)) ?? '';
+          try {
+            const jsonData: CloudImageInfoWithCalculatedUrl = JSON.parse(content);
+            files.push(jsonData);
+          } catch (parseError) {
+            console.error(`Error parsing JSON for file ${entry.path}:`, parseError);
+          }
         } else if (entry.type === 'dir') {
           files.push(...(await getRemoteFiles(`${path}/${entry.name}`)));
         }
@@ -58,33 +59,15 @@ const fetchFilesFromGitHub = async (basePath: string, extension: string): Promis
   };
 
   const allFiles = await getRemoteFiles(basePath);
-  // ベースパスを除去
-  return allFiles.map((file) => ({
-    path: file.path.replace(`${basePath}/`, ''),
-    content: file.content,
-  }));
+  return allFiles;
 };
 
-// Markdownファイル取得
-export const getMarkdownFiles = async (): Promise<FileInfo[]> => {
+export const getJsonFiles = async (): Promise<CloudImageInfoWithCalculatedUrl[]> => {
   try {
-    const basePath = process.env.NEXT_PUBLIC_GITHUB_DOCS_PATH as string;
-    return await fetchFilesFromGitHub(basePath, '.md');
+    const basePath = process.env.NEXT_PUBLIC_GITHUB_DATA_PATH as string; // 例: 'data'
+    return await fetchFilesFromGitHub(basePath, '.json');
   } catch (error) {
-    return [];
-  }
-};
-
-// HTMLファイル取得
-export const getHTMLFiles = async (): Promise<(FileInfo & { url: string })[]> => {
-  try {
-    const basePath = process.env.NEXT_PUBLIC_GITHUB_HTML_PATH as string;
-    const files = await fetchFilesFromGitHub(basePath, '.html');
-    return files.map((file) => ({
-      ...file,
-      url: `https://github.com/BuntinJP/xlog-images/blob/main/${basePath}/${file.path}`,
-    }));
-  } catch (error) {
+    console.error('Error fetching JSON files:', error);
     return [];
   }
 };
