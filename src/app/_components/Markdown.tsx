@@ -10,14 +10,24 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@radix-ui/react-progress';
 import { Button } from '@/components/ui/button';
 
-import { Clipboard, Check } from 'lucide-react';
+import { Clipboard, Check, Loader2 } from 'lucide-react';
+
+const formatBytes = (bytes: number, decimals = 2): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const size = Number.parseFloat((bytes / k ** i).toFixed(dm));
+  return `${size} ${sizes[i]}`;
+};
 
 const Loading = () => {
   return (
-    <output aria-live='polite' className='flex justify-center items-center h-48'>
-      <Progress className='w-1/2' />
+    <div className='flex justify-center items-center h-48'>
+      <Loader2 className='w-12 h-12 text-blue-400 animate-spin' aria-hidden='true' />
       <span className='sr-only'>Loading...</span>
-    </output>
+    </div>
   );
 };
 
@@ -67,7 +77,7 @@ export const Markdown = () => {
 
   if (source.length === 0) {
     return (
-      <div className='text-center mt-20'>
+      <div className='text-center mt-20 text-gray-400'>
         <p>No data available.</p>
       </div>
     );
@@ -76,9 +86,9 @@ export const Markdown = () => {
   return (
     <div className='[overflow-wrap:anywhere] mx-4 my-8'>
       {/* Table of Contents */}
-      <Card className='mb-8'>
+      <Card className='mb-8 bg-gray-800 border border-gray-700'>
         <CardHeader>
-          <CardTitle>Table of Contents</CardTitle>
+          <CardTitle className='text-white'>Table of Contents</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className='m-0 pl-4 list-disc'>
@@ -86,7 +96,8 @@ export const Markdown = () => {
               <li key={file.publicId}>
                 <Link
                   href={`#${file.publicId}`}
-                  className='text-base sm:text-lg text-blue-400 hover:text-blue-300 no-underline hover:underline'>
+                  className='text-base sm:text-lg text-blue-400 hover:text-blue-300 no-underline hover:underline'
+                >
                   {file.publicId}
                 </Link>
               </li>
@@ -101,18 +112,26 @@ export const Markdown = () => {
           const copyText = `![${file.publicId}](${file.calculatedUrl})`;
 
           return (
-            <Card key={file.publicId} id={file.publicId} className='overflow-hidden min-w-[10cm] bg-gray-800'> {/* Added bg-gray-800 for card background */}
+            <Card
+              key={file.publicId}
+              id={file.publicId}
+              className='overflow-hidden min-w-[10cm] bg-gray-800 border border-gray-700'
+            >
               <CardHeader>
-                <CardTitle className='break-all'>{file.publicId}</CardTitle>
+                <CardTitle className='break-all text-white'>{file.publicId}</CardTitle>
               </CardHeader>
               <CardContent>
                 {/* Image Preview */}
-                <img src={file.calculatedUrl} alt={file.publicId} className='w-full h-auto mb-4' />
+                <img
+                  src={file.calculatedUrl}
+                  alt={file.publicId}
+                  className='w-full h-auto mb-4 rounded'
+                />
 
                 {/* Data Display */}
-                <div className='space-y-2'>
+                <div className='space-y-2 text-gray-300'>
                   <p>
-                    <strong>URL:</strong>{' '}
+                    <strong className='text-white'>URL:</strong>{' '}
                     <a
                       href={file.url}
                       target='_blank'
@@ -123,7 +142,7 @@ export const Markdown = () => {
                     </a>
                   </p>
                   <p>
-                    <strong>Secure URL:</strong>{' '}
+                    <strong className='text-white'>Secure URL:</strong>{' '}
                     <a
                       href={file.secureUrl}
                       target='_blank'
@@ -134,19 +153,20 @@ export const Markdown = () => {
                     </a>
                   </p>
                   <p>
-                    <strong>Width:</strong> {file.width}px
+                    <strong className='text-white'>Width:</strong> {file.width}px
                   </p>
                   <p>
-                    <strong>Height:</strong> {file.height}px
+                    <strong className='text-white'>Height:</strong> {file.height}px
                   </p>
                   <p>
-                    <strong>Format:</strong> {file.format}
+                    <strong className='text-white'>Format:</strong> {file.format}
                   </p>
                   <p>
-                    <strong>Bytes:</strong> {file.bytes}
+                    <strong className='text-white'>Bytes:</strong> {formatBytes(file.bytes)}
                   </p>
                   <p>
-                    <strong>Created At:</strong> {new Date(file.createdAt).toLocaleString()}
+                    <strong className='text-white'>Created At:</strong>{' '}
+                    {new Date(file.createdAt).toLocaleString()}
                   </p>
                 </div>
 
@@ -154,7 +174,7 @@ export const Markdown = () => {
                 <div className='mt-4 flex items-center'>
                   <Button
                     onClick={() => handleCopy(copyText, file.publicId)}
-                    className='flex items-center bg-blue-600 hover:bg-blue-500'
+                    className='flex items-center bg-blue-600 hover:bg-blue-500 text-white'
                   >
                     {copiedId === file.publicId ? (
                       <>
