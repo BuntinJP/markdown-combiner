@@ -13,6 +13,7 @@ export type CloudImageInfo = {
   format: string;
   bytes: number;
   createdAt: string;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   result?: any;
 };
 

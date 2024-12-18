@@ -15,8 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='ja'>
-      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-200 m-0`}>
+    <html lang='ja' className='dark'>
+      {' '}
+      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-900 text-white m-0`}>
+        {' '}
+        {/* Updated background and text colors for dark theme */}
         {children}
       </body>
     </html>

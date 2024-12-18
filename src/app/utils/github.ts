@@ -31,7 +31,10 @@ const getFileContent = async (path: string): Promise<string | undefined> => {
   return undefined;
 };
 
-const fetchFilesFromGitHub = async (basePath: string, extension: string): Promise<CloudImageInfoWithCalculatedUrl[]> => {
+const fetchFilesFromGitHub = async (
+  basePath: string,
+  extension: string,
+): Promise<CloudImageInfoWithCalculatedUrl[]> => {
   const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER as string;
   const repo = process.env.NEXT_PUBLIC_GITHUB_REPO as string;
 
