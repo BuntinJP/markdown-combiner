@@ -35,14 +35,14 @@ const ImageGallery = async () => {
   }
 
   if (source.length === 0) {
-    return (
-      <div className='flex justify-center items-center h-screen'>
-        <p className='text-gray-400 text-xl'>利用可能なデータがありません。</p>
-      </div>
-    );
+    return;
   }
 
-  return (
+  return source.length === 0 ? (
+    <div className='flex justify-center items-center h-screen'>
+      <p className='text-gray-400 text-xl'>利用可能なデータがありません。</p>
+    </div>
+  ) : (
     <div className='px-4 py-8 max-w-7xl mx-auto'>
       <Card className='mb-8 bg-gray-800 border border-gray-700 shadow-lg'>
         <CardHeader>
@@ -102,14 +102,14 @@ const ImageGallery = async () => {
                     </a>
                   </p>
                   <p className='break-words'>
-                    <strong className='text-white'>セキュアURL:</strong>{' '}
+                    <strong className='text-white'>生成URL:</strong>{' '}
                     <a
                       href={file.secureUrl}
                       target='_blank'
                       rel='noopener noreferrer'
                       className='text-blue-400 hover:underline break-words'
                     >
-                      {file.secureUrl}
+                      {file.calculatedUrl}
                     </a>
                   </p>
                   <p>
