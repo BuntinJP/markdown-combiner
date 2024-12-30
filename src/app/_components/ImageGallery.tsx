@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getJsonFiles } from '../utils/github';
+import { getData } from '../utils/github';
 import type { CloudImageInfoWithCalculatedUrl } from '../types';
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -20,7 +20,7 @@ const ImageGallery = async () => {
   let source: CloudImageInfoWithCalculatedUrl[] = [];
 
   try {
-    const files = await getJsonFiles();
+    const files = await getData();
     if (files.length === 0) {
       throw new Error('JSONファイルが見つかりません');
     }
