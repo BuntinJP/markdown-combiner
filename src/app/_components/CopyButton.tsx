@@ -7,18 +7,18 @@ import { Clipboard, Check } from 'lucide-react';
 
 interface CopyButtonProps {
   copyText: string;
-  publicId: string;
+  title: string;
 }
 
-const CopyButton: React.FC<CopyButtonProps> = ({ copyText, publicId }) => {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+const CopyButton: React.FC<CopyButtonProps> = ({ copyText, title }) => {
+  const [copied, setCopied] = useState<boolean>(false);
 
   const handleCopy = () => {
     navigator.clipboard
       .writeText(copyText)
       .then(() => {
-        setCopiedId(publicId);
-        setTimeout(() => setCopiedId(null), 2000);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       })
       .catch((err) => {
         console.error('コピーに失敗しました: ', err);
@@ -31,7 +31,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ copyText, publicId }) => {
         onClick={handleCopy}
         className='flex items-center bg-blue-600 hover:bg-blue-500 text-white'
       >
-        {copiedId === publicId ? (
+        {copied ? (
           <>
             <Check className='w-5 h-5 mr-2' />
             コピー完了！
@@ -39,7 +39,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ copyText, publicId }) => {
         ) : (
           <>
             <Clipboard className='w-5 h-5 mr-2' />
-            Markdownをコピー
+            {''}{title}
           </>
         )}
       </Button>

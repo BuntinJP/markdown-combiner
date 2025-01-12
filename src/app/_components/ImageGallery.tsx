@@ -130,7 +130,8 @@ export const ImageGallery = async () => {
                   </p>
                 </div>
 
-                <CopyButton copyText={copyText} publicId={file.publicId} />
+                <CopyButton copyText={file.publicId||''} title='PublicIDをコピー' />
+                <CopyButton copyText={copyText} title='Markdownをコピー' />
               </CardContent>
             </Card>
           );
