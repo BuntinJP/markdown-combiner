@@ -16,7 +16,7 @@ const formatBytes = (bytes: number, decimals = 2): string => {
   return `${size} ${sizes[i]}`;
 };
 
-const ImageGallery = async () => {
+export const ImageGallery = async () => {
   let source: CloudImageInfoWithCalculatedUrl[] = [];
 
   try {
@@ -139,5 +139,3 @@ const ImageGallery = async () => {
     </div>
   );
 };
-
-export default ImageGallery;

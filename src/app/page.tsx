@@ -1,4 +1,6 @@
-import ImageGallery from './_components/ImageGallery';
+import { ImageGallery } from './_components/ImageGallery';
+
+export const dynamic = "force-dynamic";
 export default function Home() {
   return (
     <main className='min-h-screen'>
